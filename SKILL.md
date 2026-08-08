@@ -580,14 +580,22 @@ Point your AI agent to `lenny-guest-list/SKILL.md`.
 
 These are the things agents repeatedly get wrong. Review before every run.
 
-### Em dashes in clarifier options
+### Em dashes in clarify() calls — question AND choices
 
 This is the #1 failure mode. Even after the Response Quality Rules were added,
-agents put em dashes in the option strings passed to clarify(). The rules say
-"all agent responses including clarify() option strings." Obey them.
+agents put em dashes in clarify() calls. Both parameters are affected: the
+`question` string and the `choices` array. The rules say "all agent responses
+including clarify() option strings." That means everything you pass to
+clarify(). Every parameter. No exceptions.
 
-**Wrong:** "Shreyas Doshi: Google, Stripe, Twitter — PM career frameworks"
-**Right:** "Shreyas Doshi (recommended). Google, Stripe, Twitter. PM career."
+**Wrong (choices):** "Shreyas Doshi: Google, Stripe, Twitter — PM career frameworks"
+**Right (choices):** "Shreyas Doshi (recommended). Google, Stripe, Twitter. PM career."
+
+**Wrong (question):** "Upload resume? Recommended — Shreyas uses your background."
+**Right (question):** "Upload resume? Recommended. Shreyas uses your background."
+
+**Rule:** Scan every string you pass to clarify() for em dashes before sending.
+If you find one, replace it with a period, comma, or sentence break.
 
 ### Redundant "Other guest" option
 
