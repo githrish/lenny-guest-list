@@ -495,7 +495,7 @@ Read lines 30-200, then 200-400, until you have enough persona data
 
 ```bash
 # Clone this skill
-git clone https://github.com/githrish/lenny-guest-list.git
+git clone https://github.com/githrish/lenny-guest-product-mock-interview.git
 
 # Clone the transcript library (303 episodes, ~25MB)
 git clone https://github.com/ChatPRD/lennys-podcast-transcripts.git
