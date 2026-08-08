@@ -44,6 +44,12 @@ git clone https://github.com/ChatPRD/lennys-podcast-transcripts.git
 ```
 Point your AI agent to `lenny-guest-list/SKILL.md`.
 
+## Demo
+
+![Demo](demo.gif)
+
+> Overview → Pick company → Pick round → Guest match → Interview. 30 seconds start to ready.
+
 ## What makes this different
 
 Most PM interview prep is passive. Read a framework. Watch a video. Hope it
