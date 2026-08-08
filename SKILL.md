@@ -464,30 +464,51 @@ python3 scripts/find_guest.py --keyword "hiring"
 
 ---
 
-## Reading a Transcript Efficiently
+## Reading a Transcript Efficiently (Latency-Optimized)
 
-Transcripts are 8K-80K characters. Don't load the whole thing:
+Transcripts are 8K-80K characters. Speed is critical: every sequential tool call
+adds a round-trip. Batch reads aggressively.
 
-**Step 1:** Read frontmatter (lines 1-30):
-```
-Read transcript.md, lines 1-30: get guest, title, keywords, publish date
-```
+### One-Shot Load (Preferred)
 
-**Step 2:** Search for interview-relevant sections:
-```
-Search transcript for: "interview", "hire", "good PM", "look for", "framework"
-```
+Fire all transcript reads in a SINGLE turn — parallel, not sequential:
 
-**Step 3:** Load body in chunks for deeper persona modeling:
 ```
-Read lines 30-200, then 200-400, until you have enough persona data
+# All three calls go out together. No waiting for one to finish before the next.
+read_file(path="episodes/<slug>/transcript.md", limit=30)          # Frontmatter
+read_file(path="episodes/<slug>/transcript.md", offset=30, limit=300)  # Body chunk 1
+read_file(path="episodes/<slug>/transcript.md", offset=330, limit=300) # Body chunk 2
 ```
 
-**Step 4:** Pay special attention to:
+For longer transcripts (800+ lines), add a fourth read in the same batch:
+```
+read_file(path="episodes/<slug>/transcript.md", offset=630, limit=300)
+```
+
+This loads 500-900 lines in ONE turn instead of 4-5 turns. Do NOT read
+frontmatter, wait for the result, then read body. Batch everything.
+
+### Skip Keyword Search
+
+The episode index (`references/episode-index.json`) already contains keywords
+for every episode. Do NOT run a separate grep or search_files call to find
+keywords — that adds a wasted round-trip. Trust the index.
+
+### What to Extract
+
+From the loaded transcript, pull:
 - How the guest describes their own interview process
 - What they say they look for when hiring PMs
-- Frameworks they repeat or emphasize
+- Frameworks they repeat or emphasize (name them, add one-line definitions)
 - How they push back on Lenny's questions (shows their debating style)
+- The guest's tone: direct/blunt, Socratic/curious, laid-back/collaborative
+
+### Anti-Patterns (These Waste Turns)
+
+- ❌ Read frontmatter, wait, then search for keywords, wait, then read body
+- ❌ search_files or grep for "metric|framework|hire" — keywords are in the index
+- ❌ Read one chunk at a time across 4-5 sequential turns
+- ❌ Re-read the same transcript for more persona data later — batch it upfront
 
 ---
 
@@ -603,7 +624,25 @@ The clarifier auto-appends an "Other (type your answer)" option. Adding your
 own "Other guest" or "Other company" creates duplicate free-text fields.
 Never add a custom "Other" option. The platform already provides one.
 
-### Clarifier truncation
+### Sequential transcript loading
+
+This is the #2 failure mode after em dashes. Agents read the transcript
+frontmatter, wait for the result, search for keywords, wait, then read
+body chunks one at a time. Each step is a round-trip. A 4-step load
+takes 4 turns instead of 1.
+
+**Wrong (4 turns):**
+Turn 1: read_file(frontmatter) → wait
+Turn 2: search_files(keywords) → wait (and usually returns 0 results anyway)
+Turn 3: read_file(chunk 1) → wait
+Turn 4: read_file(chunk 2) → wait
+
+**Right (1 turn):**
+Turn 1: read_file(frontmatter) + read_file(chunk 1) + read_file(chunk 2)
+All three fire in parallel. No keyword search needed — use the episode index.
+
+Rule: ALL transcript reads go in one batch. No exceptions. Skip the keyword
+search entirely — episode-index.json already has them.
 
 The clarifier shows at most 4 custom choices. If a list is longer, the extras
 are silently dropped. Never pass more than 4 options to clarify(). For longer
