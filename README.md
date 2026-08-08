@@ -12,14 +12,37 @@ your growth numbers. April Dunford makes you defend your positioning.
 built from their actual transcripts. Works with ChatGPT, Claude, Hermes,
 Codex, or any AI agent that loads a SKILL.md.
 
-## Quick Start
+## Install
 
+Pick your platform:
+
+### Hermes Agent
+```bash
+hermes skills install https://raw.githubusercontent.com/githrish/lenny-guest-list/main/SKILL.md
+```
+Or add the repo as a skill source:
+```bash
+hermes skills tap add githrish/lenny-guest-list
+```
+
+### ChatGPT
+Upload `SKILL.md` as a custom GPT instruction file or attach it to your
+project. The transcript library must be accessible.
+
+### Claude
+Add `SKILL.md` to your project context. Claude Code reads it alongside
+`CLAUDE.md`. Place the transcript library in the same parent directory.
+
+### Codex CLI
+Place `SKILL.md` in your project directory. Codex auto-loads markdown
+skill files from the project root.
+
+### Manual (any platform)
 ```bash
 git clone https://github.com/githrish/lenny-guest-list.git
 git clone https://github.com/ChatPRD/lennys-podcast-transcripts.git
 ```
-
-Point your AI agent to `lenny-guest-list/SKILL.md`. Done.
+Point your AI agent to `lenny-guest-list/SKILL.md`.
 
 ## What makes this different
 
@@ -42,15 +65,10 @@ their episode.
 - Run a full 6-phase interview: Opening, experience deep-dive, round-specific
   case, your questions, closing reaction, structured feedback
 
-## Supported platforms
+## Supported rounds
 
-| Platform | How to use |
-|----------|-----------|
-| **ChatGPT** | Upload SKILL.md as a custom instruction or project file |
-| **Claude** | Add SKILL.md to your project context |
-| **Hermes Agent** | Place skill in `~/.hermes/skills/` or load via `skill_view` |
-| **OpenAI Codex** | Reference SKILL.md in your project |
-| **Any agent** | If it reads markdown files, it works |
+Product Sense, Product Metrics, Product Execution, Product Strategy,
+Technical / System Design, Behavioral, Estimation, GTM / Product Marketing
 
 ## Guests by category
 
